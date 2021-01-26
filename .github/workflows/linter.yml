@@ -1,4 +1,4 @@
-name: nodejs
+name: linter
 
 on:
   push:
