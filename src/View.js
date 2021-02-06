@@ -1,86 +1,38 @@
 import difference from 'lodash/difference';
 
-function View(rootEl) {
-  const fields = {
-    url: rootEl.querySelector('#main-form input[name="url"]'),
-  };
-  const feedback = rootEl.querySelector('.feedback');
-  const submitButton = rootEl.querySelector('button[type="submit"]');
-  const feedsWrapper = rootEl.querySelector('.feeds');
-  const postsWrapper = rootEl.querySelector('.posts');
-
-  const renderFieldsErrors = (errors) => {
-    Object.entries(fields).forEach(([name, element]) => {
-      const errorElement = element.nextElementSibling;
-      const error = errors[name];
-      if (errorElement) {
-        element.classList.remove('is-invalid');
-        errorElement.remove();
-      }
-      if (!error) {
-        return;
-      }
-      const feedbackElement = document.createElement('div');
-      feedbackElement.classList.add('invalid-feedback');
-      feedbackElement.innerHTML = error.message;
-      element.classList.add('is-invalid');
-      element.after(feedbackElement);
-    });
-  };
-
-  const renderProcessError = (error) => {
-    feedback.innerHTML = '';
-    feedback.classList.remove('text-danger');
-
-    if (error) {
-      feedback.innerHTML = error;
-      feedback.classList.add('text-danger');
+const renderFieldsErrors = (fields, errors) => {
+  Object.entries(fields).forEach(([name, element]) => {
+    const errorElement = element.nextElementSibling;
+    const error = errors[name];
+    if (errorElement) {
+      element.classList.remove('is-invalid');
+      errorElement.remove();
     }
-  };
+    if (!error) {
+      return;
+    }
+    const feedbackElement = document.createElement('div');
+    feedbackElement.classList.add('invalid-feedback');
+    feedbackElement.innerHTML = error.message;
+    element.classList.add('is-invalid');
+    element.after(feedbackElement);
+  });
+};
 
-  const renderSuccessFeedback = () => {
-    feedback.innerHTML = 'RSS успешно добавлен';
-    feedback.classList.remove('text-danger');
-    feedback.classList.add('text-success');
-  };
+const renderPosts = (postsWrapper, posts) => {
+  postsWrapper.innerHTML = '';
 
-  const renderFeeds = (feeds) => {
-    feedsWrapper.innerHTML = '';
+  const header = document.createElement('h2');
+  header.textContent = 'Posts';
+  postsWrapper.append(header);
 
-    const header = document.createElement('h2');
-    header.textContent = 'Feeds';
-    feedsWrapper.append(header);
+  const ul = document.createElement('ul');
+  ul.className = 'list-group mb-5 feeds';
 
-    const ul = document.createElement('ul');
-    ul.className = 'list-group mb-5 feeds';
-
-    feeds.forEach((feed) => {
-      const li = document.createElement('li');
-      li.className = 'list-group-item';
-      li.innerHTML = `
-        <h3>${feed.title}</h3>
-        <p>${feed.description}</p>
-      `;
-      ul.prepend(li);
-    });
-
-    feedsWrapper.append(ul);
-  };
-
-  const renderPosts = (posts) => {
-    postsWrapper.innerHTML = '';
-
-    const header = document.createElement('h2');
-    header.textContent = 'Posts';
-    postsWrapper.append(header);
-
-    const ul = document.createElement('ul');
-    ul.className = 'list-group mb-5 feeds';
-
-    posts.forEach((post) => {
-      const li = document.createElement('li');
-      li.className = 'list-group-item d-flex justify-content-between align-items-start';
-      li.innerHTML = `
+  posts.forEach((post) => {
+    const li = document.createElement('li');
+    li.className = 'list-group-item d-flex justify-content-between align-items-start';
+    li.innerHTML = `
         <a
           href="${post.link}"
           class="font-weight-bold"
@@ -90,11 +42,59 @@ function View(rootEl) {
             ${post.title}
         </a>
       `;
-      ul.prepend(li);
-    });
+    ul.prepend(li);
+  });
 
-    postsWrapper.append(ul);
+  postsWrapper.append(ul);
+};
+
+const renderFeeds = (feedsWrapper, feeds) => {
+  feedsWrapper.innerHTML = '';
+
+  const header = document.createElement('h3');
+  header.textContent = 'Feeds';
+  feedsWrapper.append(header);
+
+  const ul = document.createElement('ul');
+  ul.className = 'list-group mb-5 feeds';
+
+  feeds.forEach((feed) => {
+    const li = document.createElement('li');
+    li.className = 'list-group-item';
+    li.innerHTML = `
+        <h3>${feed.title}</h3>
+        <p>${feed.description}</p>
+      `;
+    ul.prepend(li);
+  });
+
+  feedsWrapper.append(ul);
+};
+
+const renderProcessError = (feedbackWrapper, error) => {
+  feedbackWrapper.innerHTML = '';
+  feedbackWrapper.classList.remove('text-danger', 'text-success');
+
+  if (error) {
+    feedbackWrapper.innerHTML = error;
+    feedbackWrapper.classList.add('text-danger');
+  }
+};
+
+const renderSuccessFeedback = (feedbackWrapper) => {
+  feedbackWrapper.innerHTML = 'RSS успешно добавлен';
+  feedbackWrapper.classList.remove('text-danger', 'text-success');
+  feedbackWrapper.classList.add('text-success');
+};
+
+function View(rootEl) {
+  const fields = {
+    url: rootEl.querySelector('#main-form input[name="url"]'),
   };
+  const feedbackWrapper = rootEl.querySelector('.feedback');
+  const submitButton = rootEl.querySelector('button[type="submit"]');
+  const feedsWrapper = rootEl.querySelector('.feeds');
+  const postsWrapper = rootEl.querySelector('.posts');
 
   const processStateHandler = (processState) => {
     switch (processState) {
@@ -109,7 +109,7 @@ function View(rootEl) {
         break;
       case 'finished':
         submitButton.disabled = false;
-        renderSuccessFeedback();
+        renderSuccessFeedback(feedbackWrapper);
         fields.url.setAttribute('value', '');
         break;
       default:
@@ -120,19 +120,19 @@ function View(rootEl) {
   this.onChange = (path, current, previous) => {
     switch (path) {
       case 'form.errors':
-        renderFieldsErrors(current);
+        renderFieldsErrors(fields, current);
         break;
       case 'form.processError':
-        renderProcessError(current);
+        renderProcessError(feedbackWrapper, current);
         break;
       case 'form.processState':
         processStateHandler(current);
         break;
       case 'feeds':
-        renderFeeds(difference(current, previous));
+        renderFeeds(feedsWrapper, difference(current, previous));
         break;
       case 'posts':
-        renderPosts(difference(current, previous));
+        renderPosts(postsWrapper, difference(current, previous));
         break;
       default:
         break;

@@ -46,14 +46,31 @@ export default class App {
     return this.state.feeds.some((el) => el.rssUrl === url);
   }
 
+  handleProxyResponse(res, rssUrl) {
+    const parser = new DOMParser();
+    const DOM = parser.parseFromString(res.data, 'text/xml');
+    if (DOM.documentElement.tagName !== 'rss') {
+      this.state.form.processError = 'Не валидный rss';
+      this.state.form.processState = 'failed';
+      return;
+    }
+
+    const { feed, posts } = parseRss(DOM);
+    this.state.feeds.push({
+      ...feed,
+      rssUrl,
+    });
+    this.state.posts = [...this.state.posts, ...posts];
+    this.state.form.processState = 'finished';
+  }
+
   setControllers() {
     this.elements.form.addEventListener('submit', (e) => {
       e.preventDefault();
       const formData = Object.fromEntries(new FormData(e.target));
-      const errors = validate(formData);
+      this.state.form.errors = validate(formData);
       this.state.form.fields = formData;
-      this.state.form.isValid = isEqual(errors, {});
-      this.state.form.errors = errors;
+      this.state.form.isValid = isEqual(this.state.form.errors, {});
 
       if (this.state.form.isValid) {
         if (this.isFeedExists(formData.url)) {
@@ -65,21 +82,7 @@ export default class App {
         this.state.form.processState = 'processing';
         axios.get(`https://hexlet-allorigins.herokuapp.com/raw?url=${formData.url}`)
           .then((res) => {
-            const parser = new DOMParser();
-            const DOM = parser.parseFromString(res.data, 'text/xml');
-            if (DOM.documentElement.tagName !== 'rss') {
-              this.state.form.processError = 'Не валидный rss';
-              this.state.form.processState = 'failed';
-              return;
-            }
-
-            const { feed, posts } = parseRss(DOM);
-            this.state.feeds.push({
-              ...feed,
-              rssUrl: formData.url,
-            });
-            this.state.posts = [...this.state.posts, ...posts];
-            this.state.form.processState = 'finished';
+            this.handleProxyResponse(res, formData.url);
           }).catch((err) => {
             console.error(err);
             this.state.form.processError = 'Ошибка сети';
