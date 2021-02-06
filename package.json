@@ -1,7 +1,7 @@
 {
   "name": "@hexlet/code",
   "version": "1.0.0",
-  "description": "[![Actions Status](https://github.com/Dimabytes/frontend-project-lvl3/workflows/hexlet-check/badge.svg)](https://github.com/Dimabytes/frontend-project-lvl3/actions)",
+  "description": "Rss reader web app",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -17,25 +17,27 @@
   },
   "homepage": "https://github.com/Dimabytes/frontend-project-lvl3#readme",
   "dependencies": {
+    "axios": "^0.21.1",
+    "yup": "^0.32.8",
+    "uuid": "^8.3.2",
+    "jquery": "^3.5.1",
+    "lodash": "^4.17.20",
+    "on-change": "^2.2.3",
+    "popper.js": "^1.16.1",
+    "bootstrap": "^4.6.0"
+  },
+  "devDependencies": {
     "@babel/core": "^7.12.10",
     "@babel/preset-env": "^7.12.11",
-    "axios": "^0.21.1",
     "babel-loader": "^8.2.2",
-    "bootstrap": "^4.6.0",
     "css-loader": "^5.0.1",
     "eslint": "^7.18.0",
     "eslint-config-airbnb": "^18.2.1",
     "eslint-plugin-import": "^2.22.1",
     "html-webpack-plugin": "^4.5.1",
-    "jquery": "^3.5.1",
-    "lodash": "^4.17.20",
-    "on-change": "^2.2.3",
-    "popper.js": "^1.16.1",
     "style-loader": "^2.0.0",
-    "uuid": "^8.3.2",
     "webpack": "^5.17.0",
     "webpack-cli": "^4.4.0",
     "webpack-dev-server": "^3.11.2",
-    "yup": "^0.32.8"
   }
 }
