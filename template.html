@@ -4,25 +4,37 @@
     <title>Rss reader</title>
 </head>
 <body class="d-flex flex-column min-vh-100">
-<main>
-    <section class="container-fluid bg-primary p-3">
+<main id="app">
+    <section class="container-fluid bg-dark p-3">
         <div class="row">
             <div class="col-md-10 col-lg-8 mx-auto text-white">
                 <h1>RSS Reader</h1>
                 <form id="main-form">
                     <div class="form-row">
                         <div class="col-12">
-                          <input autofocus
-                                 required
-                                 name="url"
-                                 class="form-control form-control-lg"
-                                 placeholder="Example: http://joeroganexp.joerogan.libsynpro.com/rss">
+                          <input autofocus required name="url" class="form-control form-control-lg" />
                         </div>
-                        <div class="col-12 mt-3 d-flex justify-content-center">
-                            <button type="submit" class="btn w-50 btn-lg btn-dark">Add</button>
+
+                        <p class="col-12 text-muted mt-2">Example: https://ru.hexlet.io/lessons.rss</p>
+
+                        <div class="col-12 mt-2 feedback"></div>
+
+                        <div class="col-12 mt-2 d-flex justify-content-center">
+                            <button type="submit" class="btn w-50 btn-lg btn-warning">Add</button>
                         </div>
                     </div>
                 </form>
+            </div>
+        </div>
+    </section>
+
+    <section class="container-fluid p-5">
+        <div class="row">
+            <div class="col-md-10 col-lg-8 mx-auto feeds">
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-10 col-lg-8 mx-auto posts">
             </div>
         </div>
     </section>
