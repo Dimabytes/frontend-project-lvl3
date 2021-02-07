@@ -1,4 +1,5 @@
 import i18n from 'i18next';
+import onChange from 'on-change';
 
 const renderFieldsErrors = (fields, errors) => {
   Object.entries(fields).forEach(([name, element]) => {
@@ -95,7 +96,7 @@ const renderSuccessFeedback = (feedbackWrapper) => {
   feedbackWrapper.classList.add('text-success');
 };
 
-function handleStateChange() {
+function getWatchedState(state) {
   const fields = {
     url: document.querySelector('#main-form input[name="url"]'),
   };
@@ -134,7 +135,7 @@ function handleStateChange() {
     }
   };
 
-  return function handleChange(path, current) {
+  const watchedState = onChange(state, (path, current) => {
     switch (path) {
       case 'form.errors':
         renderFieldsErrors(fields, current);
@@ -149,18 +150,19 @@ function handleStateChange() {
         renderFeeds(feedsWrapper, current);
         break;
       case 'posts':
-        renderPosts(postsWrapper, current, this.uiState.viewedPosts);
+        renderPosts(postsWrapper, current, state.uiState.viewedPosts);
         break;
       case 'uiState.viewedPosts':
-        renderPosts(postsWrapper, this.posts, current);
+        renderPosts(postsWrapper, state.posts, current);
         break;
       case 'uiState.modalPostId':
-        updateModal(modal, this.posts.find((post) => post.id === current));
+        updateModal(modal, state.posts.find((post) => post.id === current));
         break;
       default:
         break;
     }
-  };
+  });
+  return watchedState;
 }
 
-export default handleStateChange;
+export default getWatchedState;
