@@ -12,12 +12,7 @@ import handleStateChange from './View';
 import { getRssDom, parseFeed, parsePosts } from './rss';
 
 const routes = {
-  proxy: (url) => {
-    const proxyUrl = new URL('/get', 'https://hexlet-allorigins.herokuapp.com');
-    proxyUrl.searchParams.set('url', url);
-    proxyUrl.searchParams.set('disableCache', 'true');
-    return proxyUrl.toString();
-  },
+  proxy: (url) => `https://hexlet-allorigins.herokuapp.com/get?url=${url}&disableCache=true`,
 };
 
 const validate = (fields, schema) => {
@@ -127,7 +122,7 @@ const createApp = () => {
         .then((res) => {
           handleFirstFeedResponse(res, formData.url);
         }).catch((err) => {
-          console.error(err);
+          console.log(err);
           setProcessError(i18n.t('processErrors.network'));
         });
     }
