@@ -1,5 +1,4 @@
 import 'bootstrap';
-import 'bootstrap/dist/css/bootstrap.min.css';
 import i18n from 'i18next';
 import { setLocale } from 'yup';
 import createApp from './App.js';
