@@ -12,7 +12,7 @@ import handleStateChange from './View';
 import { getRssDom, parseFeed, parsePosts } from './parseRss';
 
 const routes = {
-  proxy: (url) => `https://hexlet-allorigins.herokuapp.com/get?url=${url}`,
+  proxy: (url) => `https://hexlet-allorigins.herokuapp.com/get?url=${url}&disableCache=true`,
 };
 
 const validate = (fields, schema) => {
