@@ -42,100 +42,110 @@ const defaultState = {
   },
 };
 
-export default class App {
-  constructor(rootEl) {
-    this.elements = {
-      form: rootEl.querySelector('#main-form'),
-    };
-    this.state = onChange(defaultState, handleStateChange(rootEl));
-  }
+const createApp = (rootEl) => {
+  const elements = {
+    form: rootEl.querySelector('#main-form'),
+  };
+  const state = onChange(defaultState, handleStateChange(rootEl));
+  const schema = yup.object().shape({
+    url: yup.string().required().url(),
+  });
 
-  isFeedExists(url) {
-    return this.state.feeds.some((el) => el.rssUrl === url);
-  }
+  const isFeedExists = (url) => state.feeds.some((el) => el.rssUrl === url);
 
-  handleFirstFeedResponse(res, rssUrl) {
-    const DOM = getRssDom(res.data);
-    if (!DOM) {
-      this.state.form.processError = i18n.t('processErrors.rssNotFound');
-      this.state.form.processState = 'failed';
-      return;
-    }
-    const feed = parseFeed(DOM);
-    const posts = parsePosts(DOM);
-    this.state.feeds.push({
+  const addNewFeed = (feed, rssUrl) => {
+    state.feeds.push({
       ...feed,
       rssUrl,
       id: uuidv4(),
     });
+  };
+
+  const addNewPosts = (posts) => {
     posts.forEach((post) => {
-      this.state.posts.push({
+      state.posts.push({
         ...post,
         id: uuidv4(),
       });
     });
-    this.state.form.processState = 'finished';
-  }
+  };
 
-  getNewPosts() {
-    const promiseArray = this.state.feeds.map(({ rssUrl }) => axios
+  const setProcessError = (errorText) => {
+    state.form.processError = errorText;
+    state.form.processState = 'failed';
+  };
+
+  const handleFirstFeedResponse = (res, rssUrl) => {
+    const DOM = getRssDom(res.data);
+    if (!DOM) {
+      setProcessError(i18n.t('processErrors.rssNotFound'));
+      return;
+    }
+    const feed = parseFeed(DOM);
+    const posts = parsePosts(DOM);
+    addNewFeed(feed, rssUrl);
+    addNewPosts(posts);
+    state.form.processState = 'finished';
+  };
+
+  const getNewPosts = () => {
+    const promiseArray = state.feeds.map(({ rssUrl }) => axios
       .get(routes.proxy(rssUrl)).then((res) => {
         const DOM = getRssDom(res.data);
         const allFeedPosts = parsePosts(DOM);
 
-        const oldPosts = this.state.posts.map((post) => omit(post, 'id'));
+        const oldPosts = state.posts.map((post) => omit(post, 'id'));
         const newPosts = differenceWith(allFeedPosts, oldPosts, isEqual);
-
-        newPosts.forEach((post) => {
-          this.state.posts.push({
-            ...post,
-            id: uuidv4(),
-          });
-        });
+        addNewPosts(newPosts);
       }));
 
     Promise.allSettled(promiseArray).then(() => {
-      setTimeout(() => this.getNewPosts(), 5000);
+      setTimeout(getNewPosts, 5000);
     });
-  }
+  };
 
-  setControllers() {
-    const schema = yup.object().shape({
-      url: yup.string().required().url(),
-    });
+  const handleFormSubmit = (e) => {
+    e.preventDefault();
+    const formData = Object.fromEntries(new FormData(e.target));
+    state.form.errors = validate(formData, schema);
+    state.form.fields = formData;
+    state.form.isValid = isEqual(state.form.errors, {});
 
-    this.elements.form.addEventListener('submit', (e) => {
-      e.preventDefault();
-      const formData = Object.fromEntries(new FormData(e.target));
-      this.state.form.errors = validate(formData, schema);
-      this.state.form.fields = formData;
-      this.state.form.isValid = isEqual(this.state.form.errors, {});
-
-      if (this.state.form.isValid) {
-        if (this.isFeedExists(formData.url)) {
-          this.state.form.processError = i18n.t('processErrors.duplicate');
-          this.state.form.processState = 'failed';
-          return;
-        }
-
-        this.state.form.processState = 'processing';
-        axios.get(routes.proxy(formData.url))
-          .then((res) => {
-            this.handleFirstFeedResponse(res, formData.url);
-          }).catch((err) => {
-            console.error(err);
-            this.state.form.processError = i18n.t('processErrors.network');
-            this.state.form.processState = 'failed';
-          });
+    if (state.form.isValid) {
+      if (isFeedExists(formData.url)) {
+        setProcessError(i18n.t('processErrors.duplicate'));
+        state.form.processState = 'failed';
+        return;
       }
-    });
 
-    $('.posts').on('click', 'button', (e) => {
-      const postId = e.target.dataset.id;
-      if (!this.state.uiState.viewedPosts.includes(postId)) {
-        this.state.uiState.viewedPosts.push(postId);
-      }
-      this.state.uiState.modalPostId = postId;
-    });
-  }
-}
+      state.form.processState = 'processing';
+      axios.get(routes.proxy(formData.url))
+        .then((res) => {
+          handleFirstFeedResponse(res, formData.url);
+        }).catch((err) => {
+          console.error(err);
+          setProcessError(i18n.t('processErrors.network'));
+        });
+    }
+  };
+
+  const handlePostClick = (e) => {
+    const postId = e.target.dataset.id;
+    if (!state.uiState.viewedPosts.includes(postId)) {
+      state.uiState.viewedPosts.push(postId);
+    }
+    state.uiState.modalPostId = postId;
+  };
+
+  const setControllers = () => {
+    elements.form.addEventListener('submit', handleFormSubmit);
+    $('.posts').on('click', 'button', handlePostClick);
+  };
+
+  return {
+    setControllers,
+    getNewPosts,
+  };
+};
+
+export default createApp;

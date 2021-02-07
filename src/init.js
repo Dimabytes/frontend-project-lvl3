@@ -1,6 +1,6 @@
 import i18n from 'i18next';
 import { setLocale } from 'yup';
-import App from './App.js';
+import createApp from './App.js';
 import resources from './locales';
 
 export default () => {
@@ -19,7 +19,7 @@ export default () => {
     });
 
     const element = document.getElementById('app');
-    const app = new App(element);
+    const app = createApp(element);
     app.setControllers();
     app.getNewPosts();
   });
