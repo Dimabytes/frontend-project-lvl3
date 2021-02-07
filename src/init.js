@@ -19,6 +19,7 @@ export default () => {
     });
 
     const element = document.getElementById('app');
+    console.log(element);
     const app = createApp(element);
     app.setControllers();
     app.getNewPosts();
