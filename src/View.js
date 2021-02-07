@@ -65,7 +65,7 @@ const renderPosts = (postsWrapper, posts, viewedPosts) => {
           rel="noopener noreferrer">
             ${post.title}
         </a>
-        <button type="button" class="btn btn-primary btn-sm" data-id="${post.id}" data-toggle="modal" data-target="#modal">Preview</button>
+        <button aria-label="preview" type="button" class="btn btn-primary btn-sm" data-id="${post.id}" data-toggle="modal" data-target="#modal">Preview</button>
       `;
     ul.prepend(li);
   });
@@ -113,17 +113,21 @@ function handleStateChange() {
     switch (processState) {
       case 'failed':
         submitButton.disabled = false;
+        fields.url.removeAttribute('readonly');
         break;
       case 'filling':
         submitButton.disabled = false;
+        fields.url.removeAttribute('readonly');
         break;
       case 'processing':
         submitButton.disabled = true;
+        fields.url.setAttribute('readonly', 'true');
         break;
       case 'finished':
         submitButton.disabled = false;
+        fields.url.removeAttribute('readonly');
         renderSuccessFeedback(feedbackWrapper);
-        fields.url.setAttribute('value', '');
+        fields.url.value = '';
         break;
       default:
         throw new Error(`Unknown state: ${processState}`);
