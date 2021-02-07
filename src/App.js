@@ -12,7 +12,12 @@ import handleStateChange from './View';
 import { getRssDom, parseFeed, parsePosts } from './parseRss';
 
 const routes = {
-  proxy: (url) => `https://hexlet-allorigins.herokuapp.com/get?url=${url}&disableCache=true`,
+  proxy: (url) => {
+    const proxyUrl = new URL('/get', 'https://hexlet-allorigins.herokuapp.com');
+    proxyUrl.searchParams.set('url', url);
+    proxyUrl.searchParams.set('disableCache', 'true');
+    return proxyUrl.toString();
+  },
 };
 
 const validate = (fields, schema) => {
@@ -76,7 +81,7 @@ const createApp = () => {
   };
 
   const handleFirstFeedResponse = (res, rssUrl) => {
-    const DOM = getRssDom(res.data);
+    const DOM = getRssDom(res.data.contents);
     if (!DOM) {
       setProcessError(i18n.t('processErrors.rssNotFound'));
       return;
@@ -91,7 +96,7 @@ const createApp = () => {
   const getNewPosts = () => {
     const promiseArray = state.feeds.map(({ rssUrl }) => axios
       .get(routes.proxy(rssUrl)).then((res) => {
-        const DOM = getRssDom(res.data);
+        const DOM = getRssDom(res.data.contents);
         const allFeedPosts = parsePosts(DOM);
 
         const oldPosts = state.posts.map((post) => omit(post, 'id'));
