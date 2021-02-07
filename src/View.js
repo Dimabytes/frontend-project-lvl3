@@ -1,4 +1,3 @@
-import difference from 'lodash/difference';
 import i18n from 'i18next';
 
 const renderFieldsErrors = (fields, errors) => {
@@ -118,7 +117,7 @@ function View(rootEl) {
     }
   };
 
-  this.onChange = (path, current, previous) => {
+  this.onChange = (path, current) => {
     switch (path) {
       case 'form.errors':
         renderFieldsErrors(fields, current);
@@ -130,10 +129,10 @@ function View(rootEl) {
         processStateHandler(current);
         break;
       case 'feeds':
-        renderFeeds(feedsWrapper, difference(current, previous));
+        renderFeeds(feedsWrapper, current);
         break;
       case 'posts':
-        renderPosts(postsWrapper, difference(current, previous));
+        renderPosts(postsWrapper, current);
         break;
       default:
         break;

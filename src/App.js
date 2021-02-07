@@ -2,10 +2,17 @@ import onChange from 'on-change';
 import * as yup from 'yup';
 import keyBy from 'lodash/keyBy';
 import isEqual from 'lodash/isEqual';
+import differenceWith from 'lodash/differenceWith';
+import omit from 'lodash/omit';
 import axios from 'axios';
 import i18n from 'i18next';
+import { v4 as uuidv4 } from 'uuid';
 import View from './View';
-import parseRss from './parseRss';
+import { getRssDom, parseFeed, parsePosts } from './parseRss';
+
+const routes = {
+  proxy: (url) => `https://hexlet-allorigins.herokuapp.com/raw?url=${url}`,
+};
 
 const validate = (fields, schema) => {
   try {
@@ -43,22 +50,50 @@ export default class App {
     return this.state.feeds.some((el) => el.rssUrl === url);
   }
 
-  handleProxyResponse(res, rssUrl) {
-    const parser = new DOMParser();
-    const DOM = parser.parseFromString(res.data, 'text/xml');
-    if (DOM.documentElement.tagName !== 'rss') {
+  handleFirstFeedResponse(res, rssUrl) {
+    const DOM = getRssDom(res.data);
+    if (!DOM) {
       this.state.form.processError = i18n.t('processErrors.rssNotFound');
       this.state.form.processState = 'failed';
       return;
     }
-
-    const { feed, posts } = parseRss(DOM);
+    const feed = parseFeed(DOM);
+    const posts = parsePosts(DOM);
     this.state.feeds.push({
       ...feed,
       rssUrl,
+      id: uuidv4(),
     });
-    this.state.posts = [...this.state.posts, ...posts];
+    console.log(posts);
+    posts.forEach((post) => {
+      this.state.posts.push({
+        ...post,
+        id: uuidv4(),
+      });
+    });
     this.state.form.processState = 'finished';
+  }
+
+  getNewPosts() {
+    const promiseArray = this.state.feeds.map(({ rssUrl }) => axios
+      .get(routes.proxy(rssUrl)).then((res) => {
+        const DOM = getRssDom(res.data);
+        const allFeedPosts = parsePosts(DOM);
+
+        const oldPosts = this.state.posts.map((post) => omit(post, 'id'));
+        const newPosts = differenceWith(allFeedPosts, oldPosts, isEqual);
+
+        newPosts.forEach((post) => {
+          this.state.posts.push({
+            ...post,
+            id: uuidv4(),
+          });
+        });
+      }));
+
+    Promise.allSettled(promiseArray).then(() => {
+      setTimeout(() => this.getNewPosts(), 5000);
+    });
   }
 
   setControllers() {
@@ -81,9 +116,9 @@ export default class App {
         }
 
         this.state.form.processState = 'processing';
-        axios.get(`https://hexlet-allorigins.herokuapp.com/raw?url=${formData.url}`)
+        axios.get(routes.proxy(formData.url))
           .then((res) => {
-            this.handleProxyResponse(res, formData.url);
+            this.handleFirstFeedResponse(res, formData.url);
           }).catch((err) => {
             console.error(err);
             this.state.form.processError = i18n.t('processErrors.network');

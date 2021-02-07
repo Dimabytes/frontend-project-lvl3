@@ -1,5 +1,5 @@
 import i18n from 'i18next';
-import * as yup from 'yup';
+import { setLocale } from 'yup';
 import App from './App.js';
 import resources from './locales';
 
@@ -9,7 +9,7 @@ export default () => {
     debug: true,
     resources,
   }).then(() => {
-    yup.setLocale({
+    setLocale({
       mixed: {
         required: i18n.t('validationErrors.required'),
       },
@@ -19,7 +19,8 @@ export default () => {
     });
 
     const element = document.getElementById('app');
-    const obj = new App(element);
-    obj.setControllers();
+    const app = new App(element);
+    app.setControllers();
+    app.getNewPosts();
   });
 };
