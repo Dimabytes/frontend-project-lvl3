@@ -7,7 +7,8 @@ import omit from 'lodash/omit';
 import axios from 'axios';
 import i18n from 'i18next';
 import { v4 as uuidv4 } from 'uuid';
-import View from './View';
+import $ from 'jquery';
+import handleStateChange from './View';
 import { getRssDom, parseFeed, parsePosts } from './parseRss';
 
 const routes = {
@@ -35,6 +36,10 @@ const defaultState = {
   },
   feeds: [],
   posts: [],
+  uiState: {
+    modalPostId: null,
+    viewedPosts: [],
+  },
 };
 
 export default class App {
@@ -42,8 +47,7 @@ export default class App {
     this.elements = {
       form: rootEl.querySelector('#main-form'),
     };
-    const view = new View(rootEl);
-    this.state = onChange(defaultState, view.onChange);
+    this.state = onChange(defaultState, handleStateChange(rootEl));
   }
 
   isFeedExists(url) {
@@ -64,7 +68,6 @@ export default class App {
       rssUrl,
       id: uuidv4(),
     });
-    console.log(posts);
     posts.forEach((post) => {
       this.state.posts.push({
         ...post,
@@ -125,6 +128,14 @@ export default class App {
             this.state.form.processState = 'failed';
           });
       }
+    });
+
+    $('.posts').on('click', 'button', (e) => {
+      const postId = e.target.dataset.id;
+      if (!this.state.uiState.viewedPosts.includes(postId)) {
+        this.state.uiState.viewedPosts.push(postId);
+      }
+      this.state.uiState.modalPostId = postId;
     });
   }
 }

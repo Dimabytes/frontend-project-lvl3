@@ -19,35 +19,6 @@ const renderFieldsErrors = (fields, errors) => {
   });
 };
 
-const renderPosts = (postsWrapper, posts) => {
-  postsWrapper.innerHTML = '';
-
-  const header = document.createElement('h3');
-  header.textContent = i18n.t('posts');
-  postsWrapper.append(header);
-
-  const ul = document.createElement('ul');
-  ul.className = 'list-group mb-5 feeds';
-
-  posts.forEach((post) => {
-    const li = document.createElement('li');
-    li.className = 'list-group-item d-flex justify-content-between align-items-start';
-    li.innerHTML = `
-        <a
-          href="${post.link}"
-          class="font-weight-bold"
-          data-id="${post.id}"
-          target="_blank"
-          rel="noopener noreferrer">
-            ${post.title}
-        </a>
-      `;
-    ul.prepend(li);
-  });
-
-  postsWrapper.append(ul);
-};
-
 const renderFeeds = (feedsWrapper, feeds) => {
   feedsWrapper.innerHTML = '';
 
@@ -71,6 +42,43 @@ const renderFeeds = (feedsWrapper, feeds) => {
   feedsWrapper.append(ul);
 };
 
+const renderPosts = (postsWrapper, posts, viewedPosts) => {
+  postsWrapper.innerHTML = '';
+
+  const header = document.createElement('h3');
+  header.textContent = i18n.t('posts');
+  postsWrapper.append(header);
+
+  const ul = document.createElement('ul');
+  ul.className = 'list-group mb-5 feeds';
+
+  posts.forEach((post) => {
+    const li = document.createElement('li');
+    li.className = 'list-group-item d-flex justify-content-between align-items-start';
+    const linkClass = viewedPosts.includes(post.id) ? 'font-weight-normal' : 'font-weight-bold';
+    li.innerHTML = `
+        <a
+          href="${post.link}"
+          class="${linkClass}"
+          data-id="${post.id}"
+          target="_blank"
+          rel="noopener noreferrer">
+            ${post.title}
+        </a>
+        <button type="button" class="btn btn-primary btn-sm" data-id="${post.id}" data-toggle="modal" data-target="#modal">Preview</button>
+      `;
+    ul.prepend(li);
+  });
+
+  postsWrapper.append(ul);
+};
+
+const updateModal = (modal, post) => {
+  modal.body.innerHTML = post.description;
+  modal.link.setAttribute('href', post.link);
+  modal.header.innerHTML = post.title;
+};
+
 const renderProcessError = (feedbackWrapper, error) => {
   feedbackWrapper.innerHTML = '';
   feedbackWrapper.classList.remove('text-danger', 'text-success');
@@ -87,7 +95,7 @@ const renderSuccessFeedback = (feedbackWrapper) => {
   feedbackWrapper.classList.add('text-success');
 };
 
-function View(rootEl) {
+function handleStateChange(rootEl) {
   const fields = {
     url: rootEl.querySelector('#main-form input[name="url"]'),
   };
@@ -95,6 +103,11 @@ function View(rootEl) {
   const submitButton = rootEl.querySelector('button[type="submit"]');
   const feedsWrapper = rootEl.querySelector('.feeds');
   const postsWrapper = rootEl.querySelector('.posts');
+  const modal = {
+    body: rootEl.querySelector('.modal-body'),
+    link: rootEl.querySelector('.modal-footer a'),
+    header: rootEl.querySelector('.modal-title'),
+  };
 
   const processStateHandler = (processState) => {
     switch (processState) {
@@ -117,7 +130,7 @@ function View(rootEl) {
     }
   };
 
-  this.onChange = (path, current) => {
+  return function handleChange(path, current) {
     switch (path) {
       case 'form.errors':
         renderFieldsErrors(fields, current);
@@ -132,7 +145,13 @@ function View(rootEl) {
         renderFeeds(feedsWrapper, current);
         break;
       case 'posts':
-        renderPosts(postsWrapper, current);
+        renderPosts(postsWrapper, current, this.uiState.viewedPosts);
+        break;
+      case 'uiState.viewedPosts':
+        renderPosts(postsWrapper, this.posts, current);
+        break;
+      case 'uiState.modalPostId':
+        updateModal(modal, this.posts.find((post) => post.id === current));
         break;
       default:
         break;
@@ -140,4 +159,4 @@ function View(rootEl) {
   };
 }
 
-export default View;
+export default handleStateChange;
