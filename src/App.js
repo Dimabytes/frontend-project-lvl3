@@ -3,14 +3,11 @@ import * as yup from 'yup';
 import keyBy from 'lodash/keyBy';
 import isEqual from 'lodash/isEqual';
 import axios from 'axios';
+import i18n from 'i18next';
 import View from './View';
 import parseRss from './parseRss';
 
-const schema = yup.object().shape({
-  url: yup.string().required().url(),
-});
-
-const validate = (fields) => {
+const validate = (fields, schema) => {
   try {
     schema.validateSync(fields, { abortEarly: false });
     return {};
@@ -50,7 +47,7 @@ export default class App {
     const parser = new DOMParser();
     const DOM = parser.parseFromString(res.data, 'text/xml');
     if (DOM.documentElement.tagName !== 'rss') {
-      this.state.form.processError = 'Не валидный rss';
+      this.state.form.processError = i18n.t('processErrors.rssNotFound');
       this.state.form.processState = 'failed';
       return;
     }
@@ -65,16 +62,20 @@ export default class App {
   }
 
   setControllers() {
+    const schema = yup.object().shape({
+      url: yup.string().required().url(),
+    });
+
     this.elements.form.addEventListener('submit', (e) => {
       e.preventDefault();
       const formData = Object.fromEntries(new FormData(e.target));
-      this.state.form.errors = validate(formData);
+      this.state.form.errors = validate(formData, schema);
       this.state.form.fields = formData;
       this.state.form.isValid = isEqual(this.state.form.errors, {});
 
       if (this.state.form.isValid) {
         if (this.isFeedExists(formData.url)) {
-          this.state.form.processError = 'Такой RSS уже добавлен';
+          this.state.form.processError = i18n.t('processErrors.duplicate');
           this.state.form.processState = 'failed';
           return;
         }
@@ -85,7 +86,7 @@ export default class App {
             this.handleProxyResponse(res, formData.url);
           }).catch((err) => {
             console.error(err);
-            this.state.form.processError = 'Ошибка сети';
+            this.state.form.processError = i18n.t('processErrors.network');
             this.state.form.processState = 'failed';
           });
       }

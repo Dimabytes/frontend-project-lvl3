@@ -1,4 +1,5 @@
 import difference from 'lodash/difference';
+import i18n from 'i18next';
 
 const renderFieldsErrors = (fields, errors) => {
   Object.entries(fields).forEach(([name, element]) => {
@@ -22,8 +23,8 @@ const renderFieldsErrors = (fields, errors) => {
 const renderPosts = (postsWrapper, posts) => {
   postsWrapper.innerHTML = '';
 
-  const header = document.createElement('h2');
-  header.textContent = 'Posts';
+  const header = document.createElement('h3');
+  header.textContent = i18n.t('posts');
   postsWrapper.append(header);
 
   const ul = document.createElement('ul');
@@ -51,8 +52,8 @@ const renderPosts = (postsWrapper, posts) => {
 const renderFeeds = (feedsWrapper, feeds) => {
   feedsWrapper.innerHTML = '';
 
-  const header = document.createElement('h3');
-  header.textContent = 'Feeds';
+  const header = document.createElement('h2');
+  header.textContent = i18n.t('feeds');
   feedsWrapper.append(header);
 
   const ul = document.createElement('ul');
@@ -82,7 +83,7 @@ const renderProcessError = (feedbackWrapper, error) => {
 };
 
 const renderSuccessFeedback = (feedbackWrapper) => {
-  feedbackWrapper.innerHTML = 'RSS успешно добавлен';
+  feedbackWrapper.innerHTML = i18n.t('successFeedback');
   feedbackWrapper.classList.remove('text-danger', 'text-success');
   feedbackWrapper.classList.add('text-success');
 };

@@ -18,13 +18,14 @@
   "homepage": "https://github.com/Dimabytes/frontend-project-lvl3#readme",
   "dependencies": {
     "axios": "^0.21.1",
-    "yup": "^0.32.8",
-    "uuid": "^8.3.2",
+    "bootstrap": "^4.6.0",
+    "i18next": "^19.8.7",
     "jquery": "^3.5.1",
     "lodash": "^4.17.20",
     "on-change": "^2.2.3",
     "popper.js": "^1.16.1",
-    "bootstrap": "^4.6.0"
+    "uuid": "^8.3.2",
+    "yup": "^0.32.8"
   },
   "devDependencies": {
     "@babel/core": "^7.12.10",
