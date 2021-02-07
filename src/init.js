@@ -6,7 +6,6 @@ import resources from './locales';
 export default () => {
   i18n.init({
     lng: 'en',
-    debug: true,
     resources,
   }).then(() => {
     setLocale({
