@@ -95,18 +95,18 @@ const renderSuccessFeedback = (feedbackWrapper) => {
   feedbackWrapper.classList.add('text-success');
 };
 
-function handleStateChange(rootEl) {
+function handleStateChange() {
   const fields = {
-    url: rootEl.querySelector('#main-form input[name="url"]'),
+    url: document.querySelector('#main-form input[name="url"]'),
   };
-  const feedbackWrapper = rootEl.querySelector('.feedback');
-  const submitButton = rootEl.querySelector('button[type="submit"]');
-  const feedsWrapper = rootEl.querySelector('.feeds');
-  const postsWrapper = rootEl.querySelector('.posts');
+  const feedbackWrapper = document.querySelector('.feedback');
+  const submitButton = document.querySelector('button[type="submit"]');
+  const feedsWrapper = document.querySelector('.feeds');
+  const postsWrapper = document.querySelector('.posts');
   const modal = {
-    body: rootEl.querySelector('.modal-body'),
-    link: rootEl.querySelector('.modal-footer a'),
-    header: rootEl.querySelector('.modal-title'),
+    body: document.querySelector('.modal-body'),
+    link: document.querySelector('.modal-footer a'),
+    header: document.querySelector('.modal-title'),
   };
 
   const processStateHandler = (processState) => {

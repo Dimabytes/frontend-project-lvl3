@@ -2,7 +2,7 @@ export default {
   translation: {
     validationErrors: {
       required: 'This field is required',
-      url: 'This field should contain valid url',
+      url: 'Must be valid url',
     },
     processErrors: {
       rssNotFound: "This source doesn't contain valid rss",

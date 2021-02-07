@@ -17,10 +17,7 @@ export default () => {
         url: i18n.t('validationErrors.url'),
       },
     });
-
-    const element = document.getElementById('app');
-    console.log(element);
-    const app = createApp(element);
+    const app = createApp();
     app.setControllers();
     app.getNewPosts();
   });

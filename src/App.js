@@ -42,11 +42,11 @@ const defaultState = {
   },
 };
 
-const createApp = (rootEl) => {
+const createApp = () => {
   const elements = {
-    form: rootEl.querySelector('#main-form'),
+    form: document.querySelector('#main-form'),
   };
-  const state = onChange(defaultState, handleStateChange(rootEl));
+  const state = onChange(defaultState, handleStateChange());
   const schema = yup.object().shape({
     url: yup.string().required().url(),
   });
