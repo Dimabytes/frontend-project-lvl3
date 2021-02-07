@@ -9,7 +9,7 @@ import i18n from 'i18next';
 import { v4 as uuidv4 } from 'uuid';
 import $ from 'jquery';
 import handleStateChange from './View';
-import { getRssDom, parseFeed, parsePosts } from './parseRss';
+import { getRssDom, parseFeed, parsePosts } from './rss';
 
 const routes = {
   proxy: (url) => {
@@ -28,26 +28,25 @@ const validate = (fields, schema) => {
     return keyBy(e.inner, 'path');
   }
 };
-
-const defaultState = {
-  form: {
-    processState: 'filling',
-    processError: null,
-    fields: {
-      url: '',
-    },
-    errors: {},
-    isValid: true,
-  },
-  feeds: [],
-  posts: [],
-  uiState: {
-    modalPostId: null,
-    viewedPosts: [],
-  },
-};
-
 const createApp = () => {
+  const defaultState = {
+    form: {
+      processState: 'filling',
+      processError: null,
+      fields: {
+        url: '',
+      },
+      errors: {},
+      isValid: true,
+    },
+    feeds: [],
+    posts: [],
+    uiState: {
+      modalPostId: null,
+      viewedPosts: [],
+    },
+  };
+
   const elements = {
     form: document.querySelector('#main-form'),
   };
