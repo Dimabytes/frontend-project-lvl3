@@ -81,12 +81,14 @@ const renderErrorFeedback = (feedbackWrapper, error) => {
 };
 
 const renderFieldsErrors = (fields, errors, feedbackWrapper) => {
-  Object.entries(fields).forEach(([name]) => {
-    const error = errors[name];
-    if (error) {
-      renderErrorFeedback(feedbackWrapper, error.message);
-    }
-  });
+  if (errors) {
+    Object.entries(fields).forEach(([name]) => {
+      const error = errors[name];
+      if (error) {
+        renderErrorFeedback(feedbackWrapper, error.message);
+      }
+    });
+  }
 };
 
 const renderSuccessFeedback = (feedbackWrapper) => {

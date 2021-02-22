@@ -109,7 +109,7 @@ const createApp = () => {
     const formData = Object.fromEntries(new FormData(e.target));
     watchedState.form.errors = validate(formData, schema);
     watchedState.form.fields = formData;
-    watchedState.form.isValid = watchedState.form.errors !== null;
+    watchedState.form.isValid = watchedState.form.errors === null;
 
     if (watchedState.form.isValid) {
       watchedState.form.processState = 'processing';
