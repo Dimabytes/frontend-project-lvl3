@@ -5,7 +5,7 @@ import createApp from './App.js';
 import resources from './locales';
 
 export default () => i18n.init({
-  lng: 'ru',
+  lng: 'en',
   debug: false,
   resources,
 }).then(() => {
