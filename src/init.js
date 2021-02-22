@@ -6,19 +6,22 @@ import resources from './locales';
 
 console.log(resources);
 
-export default () => i18n.init({
-  lng: 'ru',
-  resources,
-}).then(() => {
-  setLocale({
-    mixed: {
-      required: i18n.t('validationErrors.required'),
-    },
-    string: {
-      url: i18n.t('validationErrors.url'),
-    },
+export default () => new Promise((resolve) => {
+  i18n.init({
+    lng: 'ru',
+    resources,
+  }).then(() => {
+    setLocale({
+      mixed: {
+        required: i18n.t('validationErrors.required'),
+      },
+      string: {
+        url: i18n.t('validationErrors.url'),
+      },
+    });
+    const app = createApp();
+    app.setControllers();
+    app.getNewPosts();
+    resolve();
   });
-  const app = createApp();
-  app.setControllers();
-  app.getNewPosts();
 });
