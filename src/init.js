@@ -1,6 +1,6 @@
 import 'bootstrap';
 import i18n from 'i18next';
-import yup from 'yup';
+import * as yup from 'yup';
 import createApp from './App.js';
 import resources from './locales';
 
