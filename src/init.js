@@ -4,6 +4,8 @@ import { setLocale } from 'yup';
 import createApp from './App.js';
 import resources from './locales';
 
+console.log(resources);
+
 export default () => i18n.init({
   lng: 'ru',
   resources,
