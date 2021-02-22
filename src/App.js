@@ -17,8 +17,12 @@ const routes = {
 const validate = (fields, schema) => {
   try {
     schema.validateSync(fields, { abortEarly: false });
-    return null;
+    return {};
   } catch (e) {
+    e.map((el) => ({
+      ...el,
+      inner: i18n.t(`errors.${el.key}`),
+    }));
     return keyBy(e.inner, 'path');
   }
 };
@@ -53,7 +57,7 @@ const createApp = () => {
     return this.test('unique', message, (feed) => !isFeedExists(feed));
   });
   const schema = yup.object().shape({
-    url: yup.string().required().url().unique(i18n.t('processErrors.duplicate')),
+    url: yup.string().required().url().unique(),
   });
 
   const addNewFeed = (feed, rssUrl) => {
@@ -85,7 +89,7 @@ const createApp = () => {
       addNewPosts(posts);
       watchedState.form.processState = 'finished';
     } catch (e) {
-      setProcessError(i18n.t('processErrors.rssNotFound'));
+      setProcessError(i18n.t('errors.rssNotFound'));
     }
   };
 
@@ -109,7 +113,7 @@ const createApp = () => {
     const formData = Object.fromEntries(new FormData(e.target));
     watchedState.form.errors = validate(formData, schema);
     watchedState.form.fields = formData;
-    watchedState.form.isValid = watchedState.form.errors === null;
+    watchedState.form.isValid = isEqual(watchedState.form.errors, {});
 
     if (watchedState.form.isValid) {
       watchedState.form.processState = 'processing';
@@ -117,7 +121,7 @@ const createApp = () => {
         .then((res) => {
           handleFirstFeedResponse(res, formData.url);
         }).catch(() => {
-          setProcessError(i18n.t('processErrors.network'));
+          setProcessError(i18n.t('errors.network'));
         });
     }
   };

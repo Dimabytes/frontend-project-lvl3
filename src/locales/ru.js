@@ -1,10 +1,8 @@
 export default {
   translation: {
-    validationErrors: {
+    errors: {
       required: 'Это поле обязательно',
       url: 'Ссылка должна быть валидным URL',
-    },
-    processErrors: {
       rssNotFound: 'Ресурс не содержит валидный RSS',
       network: 'Ошибка сети',
       duplicate: 'RSS уже существует',

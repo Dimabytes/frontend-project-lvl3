@@ -1,26 +1,17 @@
 import 'bootstrap';
-import i18next from 'i18next/dist/cjs/i18next.js';
-import * as yup from 'yup';
+import i18n from 'i18next';
+import { setLocale } from 'yup';
 import createApp from './App.js';
 import resources from './locales';
+import yupLocale from './locales/yup';
 
-export default () => {
-  i18next.init({
-    lng: 'ru',
-    debug: false,
-    resources,
-  }).then(() => {
-    console.log(i18next.t('validationErrors.required'));
-    yup.setLocale({
-      mixed: {
-        required: i18next.t('validationErrors.required'),
-      },
-      string: {
-        url: i18next.t('validationErrors.url'),
-      },
-    });
-    const app = createApp();
-    app.setControllers();
-    app.getNewPosts();
-  });
-};
+export default () => i18n.init({
+  lng: 'ru',
+  debug: false,
+  resources,
+}).then(() => {
+  setLocale(yupLocale);
+  const app = createApp();
+  app.setControllers();
+  app.getNewPosts();
+});
