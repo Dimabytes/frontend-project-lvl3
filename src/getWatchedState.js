@@ -43,6 +43,7 @@ const renderPosts = (postsWrapper, posts, viewedPosts) => {
     const link = document.createElement('a');
     link.setAttribute('href', post.link);
     link.setAttribute('class', linkClass);
+    link.setAttribute('role', 'link');
     link.setAttribute('data-id', post.id);
     link.setAttribute('target', '_blank');
     link.setAttribute('rel', 'noopener noreferrer');
@@ -50,12 +51,13 @@ const renderPosts = (postsWrapper, posts, viewedPosts) => {
 
     const button = document.createElement('button');
     button.setAttribute('aria-label', 'preview');
+    button.setAttribute('role', 'button');
     button.setAttribute('type', 'button');
     button.setAttribute('class', 'btn btn-primary btn-sm');
     button.setAttribute('data-id', post.id);
     button.setAttribute('data-toggle', 'modal');
     button.setAttribute('data-target', '#modal');
-    button.textContent = 'Preview';
+    button.textContent = i18n.t('openModalBtn');
     li.append(link);
     li.append(button);
     ul.prepend(li);

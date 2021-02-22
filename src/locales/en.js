@@ -10,6 +10,7 @@ export default {
       duplicate: 'Rss already exists',
     },
     successFeedback: 'Rss has been loaded',
+    openModalBtn: 'Preview',
     posts: 'Posts',
     feeds: 'Feeds',
   },
