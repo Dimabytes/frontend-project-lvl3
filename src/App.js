@@ -8,7 +8,7 @@ import i18n from 'i18next';
 import { v4 as uuidv4 } from 'uuid';
 import $ from 'jquery';
 import getWatchedState from './getWatchedState';
-import { getRssDom, parseFeed, parsePosts } from './rss';
+import parseRss from './rss';
 
 const routes = {
   proxy: (url) => `https://hexlet-allorigins.herokuapp.com/get?url=${url}&disableCache=true`,
@@ -17,7 +17,7 @@ const routes = {
 const validate = (fields, schema) => {
   try {
     schema.validateSync(fields, { abortEarly: false });
-    return {};
+    return null;
   } catch (e) {
     return keyBy(e.inner, 'path');
   }
@@ -44,12 +44,17 @@ const createApp = () => {
   const elements = {
     form: document.querySelector('#main-form'),
   };
+
   const watchedState = getWatchedState(defaultState);
-  const schema = yup.object().shape({
-    url: yup.string().required().url(),
-  });
 
   const isFeedExists = (url) => watchedState.feeds.some((el) => el.rssUrl === url);
+
+  yup.addMethod(yup.string, 'unique', function check(message) {
+    return this.test('unique', message, (feed) => !isFeedExists(feed));
+  });
+  const schema = yup.object().shape({
+    url: yup.string().required().url().unique(i18n.t('processErrors.duplicate')),
+  });
 
   const addNewFeed = (feed, rssUrl) => {
     watchedState.feeds.push({
@@ -74,26 +79,23 @@ const createApp = () => {
   };
 
   const handleFirstFeedResponse = (res, rssUrl) => {
-    const DOM = getRssDom(res.data.contents);
-    if (!DOM) {
+    try {
+      const { feed, posts } = parseRss(res.data.contents);
+      addNewFeed(feed, rssUrl);
+      addNewPosts(posts);
+      watchedState.form.processState = 'finished';
+    } catch (e) {
       setProcessError(i18n.t('processErrors.rssNotFound'));
-      return;
     }
-    const feed = parseFeed(DOM);
-    const posts = parsePosts(DOM);
-    addNewFeed(feed, rssUrl);
-    addNewPosts(posts);
-    watchedState.form.processState = 'finished';
   };
 
   const getNewPosts = () => {
     const promiseArray = watchedState.feeds.map(({ rssUrl }) => axios
       .get(routes.proxy(rssUrl)).then((res) => {
-        const DOM = getRssDom(res.data.contents);
-        const allFeedPosts = parsePosts(DOM);
+        const { posts } = parseRss(res.data.contents);
 
         const oldPosts = watchedState.posts.map((post) => omit(post, 'id'));
-        const newPosts = differenceWith(allFeedPosts, oldPosts, isEqual);
+        const newPosts = differenceWith(posts, oldPosts, isEqual);
         addNewPosts(newPosts);
       }));
 
@@ -107,15 +109,9 @@ const createApp = () => {
     const formData = Object.fromEntries(new FormData(e.target));
     watchedState.form.errors = validate(formData, schema);
     watchedState.form.fields = formData;
-    watchedState.form.isValid = isEqual(watchedState.form.errors, {});
+    watchedState.form.isValid = watchedState.form.errors === null;
 
     if (watchedState.form.isValid) {
-      if (isFeedExists(formData.url)) {
-        setProcessError(i18n.t('processErrors.duplicate'));
-        watchedState.form.processState = 'failed';
-        return;
-      }
-
       watchedState.form.processState = 'processing';
       axios.get(routes.proxy(formData.url))
         .then((res) => {

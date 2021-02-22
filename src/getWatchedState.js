@@ -1,24 +1,6 @@
+/* eslint-disable no-param-reassign */
 import i18n from 'i18next';
 import onChange from 'on-change';
-
-const renderFieldsErrors = (fields, errors) => {
-  Object.entries(fields).forEach(([name, element]) => {
-    const errorElement = element.nextElementSibling;
-    const error = errors[name];
-    if (errorElement) {
-      element.classList.remove('is-invalid');
-      errorElement.remove();
-    }
-    if (!error) {
-      return;
-    }
-    const feedbackElement = document.createElement('div');
-    feedbackElement.classList.add('invalid-feedback');
-    feedbackElement.innerHTML = error.message;
-    element.classList.add('is-invalid');
-    element.after(feedbackElement);
-  });
-};
 
 const renderFeeds = (feedsWrapper, feeds) => {
   feedsWrapper.innerHTML = '';
@@ -57,17 +39,25 @@ const renderPosts = (postsWrapper, posts, viewedPosts) => {
     const li = document.createElement('li');
     li.className = 'list-group-item d-flex justify-content-between align-items-start';
     const linkClass = viewedPosts.includes(post.id) ? 'font-weight-normal' : 'font-weight-bold';
-    li.innerHTML = `
-        <a
-          href="${post.link}"
-          class="${linkClass}"
-          data-id="${post.id}"
-          target="_blank"
-          rel="noopener noreferrer">
-            ${post.title}
-        </a>
-        <button aria-label="preview" type="button" class="btn btn-primary btn-sm" data-id="${post.id}" data-toggle="modal" data-target="#modal">Preview</button>
-      `;
+
+    const link = document.createElement('a');
+    link.setAttribute('href', post.link);
+    link.setAttribute('class', linkClass);
+    link.setAttribute('data-id', post.id);
+    link.setAttribute('target', '_blank');
+    link.setAttribute('rel', 'noopener noreferrer');
+    link.textContent = post.title;
+
+    const button = document.createElement('button');
+    button.setAttribute('aria-label', 'preview');
+    button.setAttribute('type', 'button');
+    button.setAttribute('class', 'btn btn-primary btn-sm');
+    button.setAttribute('data-id', post.id);
+    button.setAttribute('data-toggle', 'modal');
+    button.setAttribute('data-target', '#modal');
+    button.textContent = 'Preview';
+    li.append(link);
+    li.append(button);
     ul.prepend(li);
   });
 
@@ -80,7 +70,7 @@ const updateModal = (modal, post) => {
   modal.header.innerHTML = post.title;
 };
 
-const renderProcessError = (feedbackWrapper, error) => {
+const renderErrorFeedback = (feedbackWrapper, error) => {
   feedbackWrapper.innerHTML = '';
   feedbackWrapper.classList.remove('text-danger', 'text-success');
 
@@ -88,6 +78,15 @@ const renderProcessError = (feedbackWrapper, error) => {
     feedbackWrapper.innerHTML = error;
     feedbackWrapper.classList.add('text-danger');
   }
+};
+
+const renderFieldsErrors = (fields, errors, feedbackWrapper) => {
+  Object.entries(fields).forEach(([name]) => {
+    const error = errors[name];
+    if (error) {
+      renderErrorFeedback(feedbackWrapper, error.message);
+    }
+  });
 };
 
 const renderSuccessFeedback = (feedbackWrapper) => {
@@ -138,10 +137,10 @@ function getWatchedState(state) {
   const watchedState = onChange(state, (path, current) => {
     switch (path) {
       case 'form.errors':
-        renderFieldsErrors(fields, current);
+        renderFieldsErrors(fields, current, feedbackWrapper);
         break;
       case 'form.processError':
-        renderProcessError(feedbackWrapper, current);
+        renderErrorFeedback(feedbackWrapper, current);
         break;
       case 'form.processState':
         processStateHandler(current);
