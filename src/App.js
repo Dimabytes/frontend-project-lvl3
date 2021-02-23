@@ -49,13 +49,6 @@ const createApp = () => {
 
   const isFeedExists = (url) => watchedState.feeds.some((el) => el.rssUrl === url);
 
-  yup.addMethod(yup.string, 'unique', function check(message) {
-    return this.test('unique', message, (feed) => !isFeedExists(feed));
-  });
-  const schema = yup.object().shape({
-    url: yup.string().required().url().unique({ key: 'duplicate' }),
-  });
-
   const addNewFeed = (feed, rssUrl) => {
     watchedState.feeds.push({
       ...feed,
@@ -107,6 +100,10 @@ const createApp = () => {
   const handleFormSubmit = (e) => {
     e.preventDefault();
     const formData = Object.fromEntries(new FormData(e.target));
+    const feedUrls = watchedState.feeds.map((feed) => feed.rssUrl);
+    const schema = yup.object().shape({
+      url: yup.string().required().url().notOneOf(feedUrls),
+    });
     watchedState.form.errors = validate(formData, schema);
     watchedState.form.fields = formData;
     watchedState.form.isValid = isEqual(watchedState.form.errors, {});
