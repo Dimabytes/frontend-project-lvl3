@@ -5,13 +5,13 @@ import createApp from './App.js';
 import resources from './locales/index.js';
 import yupLocale from './locales/yup.js';
 
-i18n.init({
+const promise = i18n.init({
   lng: 'ru',
   debug: false,
   resources,
 });
 
-export default () => Promise.resolve().then(() => {
+export default () => promise.then(() => {
   yup.setLocale(yupLocale);
   const app = createApp();
   app.setControllers();
