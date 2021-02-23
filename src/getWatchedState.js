@@ -50,7 +50,6 @@ const renderPosts = (postsWrapper, posts, viewedPosts) => {
     link.textContent = post.title;
 
     const button = document.createElement('button');
-    button.setAttribute('aria-label', 'preview');
     button.setAttribute('role', 'button');
     button.setAttribute('type', 'button');
     button.setAttribute('class', 'btn btn-primary btn-sm');
