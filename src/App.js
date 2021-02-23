@@ -47,8 +47,6 @@ const createApp = () => {
 
   const watchedState = getWatchedState(defaultState);
 
-  const isFeedExists = (url) => watchedState.feeds.some((el) => el.rssUrl === url);
-
   const addNewFeed = (feed, rssUrl) => {
     watchedState.feeds.push({
       ...feed,
