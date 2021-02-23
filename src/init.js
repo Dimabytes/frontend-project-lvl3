@@ -1,16 +1,16 @@
 import 'bootstrap';
-import i18n from 'i18next';
-import { setLocale } from 'yup';
+import i18n from 'i18next/dist/cjs/i18next.js';
+import * as yup from 'yup';
 import createApp from './App.js';
-import resources from './locales';
-import yupLocale from './locales/yup';
+import resources from './locales/index.js';
+import yupLocale from './locales/yup.js';
 
 export default () => i18n.init({
   lng: 'ru',
   debug: false,
   resources,
 }).then(() => {
-  setLocale(yupLocale);
+  yup.setLocale(yupLocale);
   const app = createApp();
   app.setControllers();
   app.getNewPosts();

@@ -1,5 +1,5 @@
 /* eslint-disable no-param-reassign */
-import i18n from 'i18next';
+import i18n from 'i18next/dist/cjs/i18next.js';
 import onChange from 'on-change';
 
 const renderFeeds = (feedsWrapper, feeds) => {
