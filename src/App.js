@@ -4,11 +4,11 @@ import isEqual from 'lodash/isEqual';
 import differenceWith from 'lodash/differenceWith';
 import omit from 'lodash/omit';
 import axios from 'axios';
-import i18n from 'i18next/dist/cjs/i18next.js';
+import i18n from 'i18next';
 import { v4 as uuidv4 } from 'uuid';
 import $ from 'jquery';
-import getWatchedState from './getWatchedState.js';
-import parseRss from './rss.js';
+import getWatchedState from './getWatchedState';
+import parseRss from './rss';
 
 const routes = {
   proxy: (url) => `https://hexlet-allorigins.herokuapp.com/get?url=${url}&disableCache=true`,
