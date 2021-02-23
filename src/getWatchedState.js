@@ -83,14 +83,12 @@ const renderErrorFeedback = (feedbackWrapper, error) => {
 };
 
 const renderFieldsErrors = (fields, errors, feedbackWrapper) => {
-  if (errors) {
-    Object.entries(fields).forEach(([name]) => {
-      const error = errors[name];
-      if (error) {
-        renderErrorFeedback(feedbackWrapper, error.message);
-      }
-    });
-  }
+  Object.entries(fields).forEach(([name]) => {
+    const error = errors[name];
+    if (error) {
+      renderErrorFeedback(feedbackWrapper, i18n.t(`errors.${error.message.key}`));
+    }
+  });
 };
 
 const renderSuccessFeedback = (feedbackWrapper) => {

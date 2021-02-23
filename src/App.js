@@ -19,7 +19,7 @@ const validate = (fields, schema) => {
     schema.validateSync(fields, { abortEarly: false });
     return {};
   } catch (e) {
-    return keyBy(e.inner, 'path').map((el) => i18n.t(`errors.${el}`));
+    return keyBy(e.inner, 'path');
   }
 };
 const createApp = () => {
@@ -53,7 +53,7 @@ const createApp = () => {
     return this.test('unique', message, (feed) => !isFeedExists(feed));
   });
   const schema = yup.object().shape({
-    url: yup.string().required().url().unique(),
+    url: yup.string().required().url().unique({ key: 'duplicate' }),
   });
 
   const addNewFeed = (feed, rssUrl) => {
