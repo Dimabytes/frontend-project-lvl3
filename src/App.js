@@ -19,11 +19,7 @@ const validate = (fields, schema) => {
     schema.validateSync(fields, { abortEarly: false });
     return {};
   } catch (e) {
-    e.map((el) => ({
-      ...el,
-      inner: i18n.t(`errors.${el.key}`),
-    }));
-    return keyBy(e.inner, 'path');
+    return keyBy(e.inner, 'path').map((el) => i18n.t(`errors.${el}`));
   }
 };
 const createApp = () => {
