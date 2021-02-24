@@ -15,10 +15,12 @@ const renderFeeds = (feedsWrapper, feeds) => {
   feeds.forEach((feed) => {
     const li = document.createElement('li');
     li.className = 'list-group-item';
-    li.innerHTML = `
-        <h3>${feed.title}</h3>
-        <p>${feed.description}</p>
-      `;
+    const h3 = document.createElement('h3');
+    h3.textContent = feed.title;
+    const p = document.createElement('p');
+    p.textContent = feed.description;
+    li.append(h3);
+    li.append(p);
     ul.prepend(li);
   });
 
@@ -66,28 +68,19 @@ const renderPosts = (postsWrapper, posts, viewedPosts) => {
 };
 
 const updateModal = (modal, post) => {
-  modal.body.innerHTML = post.description;
+  modal.body.textContent = post.description;
   modal.link.setAttribute('href', post.link);
-  modal.header.innerHTML = post.title;
+  modal.header.textContent = post.title;
 };
 
-const renderErrorFeedback = (feedbackWrapper, error) => {
+const renderErrorFeedback = (feedbackWrapper, errorKey) => {
   feedbackWrapper.innerHTML = '';
   feedbackWrapper.classList.remove('text-danger', 'text-success');
 
-  if (error) {
-    feedbackWrapper.innerHTML = error;
+  if (errorKey) {
+    feedbackWrapper.innerHTML = i18n.t(`errors.${errorKey}`);
     feedbackWrapper.classList.add('text-danger');
   }
-};
-
-const renderFieldsErrors = (fields, errors, feedbackWrapper) => {
-  Object.entries(fields).forEach(([name]) => {
-    const error = errors[name];
-    if (error) {
-      renderErrorFeedback(feedbackWrapper, i18n.t(`errors.${error.message.key}`));
-    }
-  });
 };
 
 const renderSuccessFeedback = (feedbackWrapper) => {
@@ -138,7 +131,7 @@ function getWatchedState(state) {
   const watchedState = onChange(state, (path, current) => {
     switch (path) {
       case 'form.errors':
-        renderFieldsErrors(fields, current, feedbackWrapper);
+        renderErrorFeedback(feedbackWrapper, current);
         break;
       case 'form.processError':
         renderErrorFeedback(feedbackWrapper, current);

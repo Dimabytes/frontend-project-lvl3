@@ -1,5 +1,4 @@
 import * as yup from 'yup';
-import keyBy from 'lodash/keyBy';
 import isEqual from 'lodash/isEqual';
 import differenceWith from 'lodash/differenceWith';
 import omit from 'lodash/omit';
@@ -7,19 +6,24 @@ import axios from 'axios';
 import i18n from 'i18next';
 import { v4 as uuidv4 } from 'uuid';
 import $ from 'jquery';
-import getWatchedState from './getWatchedState';
-import parseRss from './rss';
+import getWatchedState from './getWatchedState.js';
+import parseRss from './rss.js';
 
 const routes = {
-  proxy: (url) => `https://hexlet-allorigins.herokuapp.com/get?url=${url}&disableCache=true`,
+  proxy: (targetUrl) => {
+    const proxyUrl = new URL('/get', 'https://hexlet-allorigins.herokuapp.com');
+    proxyUrl.searchParams.set('disableCache', 'true');
+    proxyUrl.searchParams.set('url', targetUrl);
+    return proxyUrl.toString();
+  },
 };
 
 const validate = (fields, schema) => {
   try {
     schema.validateSync(fields, { abortEarly: false });
-    return {};
+    return null;
   } catch (e) {
-    return keyBy(e.inner, 'path');
+    return e.message.key;
   }
 };
 const createApp = () => {
@@ -76,7 +80,7 @@ const createApp = () => {
       addNewPosts(posts);
       watchedState.form.processState = 'finished';
     } catch (e) {
-      setProcessError(i18n.t('errors.rssNotFound'));
+      setProcessError('rssNotFound');
     }
   };
 
@@ -99,12 +103,10 @@ const createApp = () => {
     e.preventDefault();
     const formData = Object.fromEntries(new FormData(e.target));
     const feedUrls = watchedState.feeds.map((feed) => feed.rssUrl);
-    const schema = yup.object().shape({
-      url: yup.string().required().url().notOneOf(feedUrls),
-    });
-    watchedState.form.errors = validate(formData, schema);
+    const schema = yup.string().required().url().notOneOf(feedUrls);
+    watchedState.form.errors = validate(formData.url, schema);
     watchedState.form.fields = formData;
-    watchedState.form.isValid = isEqual(watchedState.form.errors, {});
+    watchedState.form.isValid = watchedState.form.errors === null;
 
     if (watchedState.form.isValid) {
       watchedState.form.processState = 'processing';
