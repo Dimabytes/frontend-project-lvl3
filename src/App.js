@@ -3,7 +3,6 @@ import isEqual from 'lodash/isEqual';
 import differenceWith from 'lodash/differenceWith';
 import omit from 'lodash/omit';
 import axios from 'axios';
-import i18n from 'i18next';
 import { v4 as uuidv4 } from 'uuid';
 import $ from 'jquery';
 import getWatchedState from './getWatchedState.js';
@@ -68,8 +67,8 @@ const createApp = () => {
     });
   };
 
-  const setProcessError = (errorText) => {
-    watchedState.form.processError = errorText;
+  const setProcessError = (errorKey) => {
+    watchedState.form.processError = errorKey;
     watchedState.form.processState = 'failed';
   };
 
@@ -104,9 +103,9 @@ const createApp = () => {
     const formData = Object.fromEntries(new FormData(e.target));
     const feedUrls = watchedState.feeds.map((feed) => feed.rssUrl);
     const schema = yup.string().required().url().notOneOf(feedUrls);
-    watchedState.form.errors = validate(formData.url, schema);
+    watchedState.form.error = validate(formData.url, schema);
     watchedState.form.fields = formData;
-    watchedState.form.isValid = watchedState.form.errors === null;
+    watchedState.form.isValid = watchedState.form.error === null;
 
     if (watchedState.form.isValid) {
       watchedState.form.processState = 'processing';
@@ -114,7 +113,7 @@ const createApp = () => {
         .then((res) => {
           handleFirstFeedResponse(res, formData.url);
         }).catch(() => {
-          setProcessError(i18n.t('errors.network'));
+          setProcessError('network');
         });
     }
   };

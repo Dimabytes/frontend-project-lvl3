@@ -130,7 +130,7 @@ function getWatchedState(state) {
 
   const watchedState = onChange(state, (path, current) => {
     switch (path) {
-      case 'form.errors':
+      case 'form.error':
         renderErrorFeedback(feedbackWrapper, current);
         break;
       case 'form.processError':
