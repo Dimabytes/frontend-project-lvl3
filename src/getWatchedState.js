@@ -1,12 +1,11 @@
 /* eslint-disable no-param-reassign */
-import i18n from 'i18next';
 import onChange from 'on-change';
 
-const renderFeeds = (feedsWrapper, feeds) => {
+const renderFeeds = (feedsWrapper, feeds, i18nInstance) => {
   feedsWrapper.innerHTML = '';
 
   const header = document.createElement('h2');
-  header.textContent = i18n.t('feeds');
+  header.textContent = i18nInstance.t('feeds');
   feedsWrapper.append(header);
 
   const ul = document.createElement('ul');
@@ -27,11 +26,11 @@ const renderFeeds = (feedsWrapper, feeds) => {
   feedsWrapper.append(ul);
 };
 
-const renderPosts = (postsWrapper, posts, viewedPosts) => {
+const renderPosts = (postsWrapper, posts, viewedPosts, i18nInstance) => {
   postsWrapper.innerHTML = '';
 
   const header = document.createElement('h3');
-  header.textContent = i18n.t('posts');
+  header.textContent = i18nInstance.t('posts');
   postsWrapper.append(header);
 
   const ul = document.createElement('ul');
@@ -58,7 +57,7 @@ const renderPosts = (postsWrapper, posts, viewedPosts) => {
     button.setAttribute('data-id', post.id);
     button.setAttribute('data-toggle', 'modal');
     button.setAttribute('data-target', '#modal');
-    button.textContent = i18n.t('openModalBtn');
+    button.textContent = i18nInstance.t('openModalBtn');
     li.append(link);
     li.append(button);
     ul.prepend(li);
@@ -73,23 +72,23 @@ const updateModal = (modal, post) => {
   modal.header.textContent = post.title;
 };
 
-const renderErrorFeedback = (feedbackWrapper, errorKey) => {
+const renderErrorFeedback = (feedbackWrapper, errorKey, i18nInstance) => {
   feedbackWrapper.innerHTML = '';
   feedbackWrapper.classList.remove('text-danger', 'text-success');
 
   if (errorKey) {
-    feedbackWrapper.innerHTML = i18n.t(`errors.${errorKey}`);
+    feedbackWrapper.innerHTML = i18nInstance.t(`errors.${errorKey}`);
     feedbackWrapper.classList.add('text-danger');
   }
 };
 
-const renderSuccessFeedback = (feedbackWrapper) => {
-  feedbackWrapper.innerHTML = i18n.t('successFeedback');
+const renderSuccessFeedback = (feedbackWrapper, i18nInstance) => {
+  feedbackWrapper.innerHTML = i18nInstance.t('successFeedback');
   feedbackWrapper.classList.remove('text-danger', 'text-success');
   feedbackWrapper.classList.add('text-success');
 };
 
-function getWatchedState(state) {
+function getWatchedState(state, i18nInstance) {
   const fields = {
     url: document.querySelector('#main-form input[name="url"]'),
   };
@@ -120,7 +119,7 @@ function getWatchedState(state) {
       case 'finished':
         submitButton.disabled = false;
         fields.url.removeAttribute('readonly');
-        renderSuccessFeedback(feedbackWrapper);
+        renderSuccessFeedback(feedbackWrapper, i18nInstance);
         fields.url.value = '';
         break;
       default:
@@ -131,22 +130,22 @@ function getWatchedState(state) {
   const watchedState = onChange(state, (path, current) => {
     switch (path) {
       case 'form.error':
-        renderErrorFeedback(feedbackWrapper, current);
+        renderErrorFeedback(feedbackWrapper, current, i18nInstance);
         break;
       case 'form.processError':
-        renderErrorFeedback(feedbackWrapper, current);
+        renderErrorFeedback(feedbackWrapper, current, i18nInstance);
         break;
       case 'form.processState':
         processStateHandler(current);
         break;
       case 'feeds':
-        renderFeeds(feedsWrapper, current);
+        renderFeeds(feedsWrapper, current, i18nInstance);
         break;
       case 'posts':
-        renderPosts(postsWrapper, current, state.uiState.viewedPosts);
+        renderPosts(postsWrapper, current, state.uiState.viewedPosts, i18nInstance);
         break;
       case 'uiState.viewedPosts':
-        renderPosts(postsWrapper, state.posts, current);
+        renderPosts(postsWrapper, state.posts, current, i18nInstance);
         break;
       case 'uiState.modalPostId':
         updateModal(modal, state.posts.find((post) => post.id === current));

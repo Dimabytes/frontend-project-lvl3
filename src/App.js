@@ -25,7 +25,7 @@ const validate = (fields, schema) => {
     return e.message.key;
   }
 };
-const createApp = () => {
+const createApp = (i18nInstance) => {
   const defaultState = {
     form: {
       processState: 'filling',
@@ -48,7 +48,7 @@ const createApp = () => {
     form: document.querySelector('#main-form'),
   };
 
-  const watchedState = getWatchedState(defaultState);
+  const watchedState = getWatchedState(defaultState, i18nInstance);
 
   const addNewFeed = (feed, rssUrl) => {
     watchedState.feeds.push({

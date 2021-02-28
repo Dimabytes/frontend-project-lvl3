@@ -5,13 +5,16 @@ import createApp from './App.js';
 import resources from './locales/index.js';
 import yupLocale from './locales/yup.js';
 
-export default () => i18n.init({
-  lng: 'ru',
-  debug: false,
-  resources,
-}).then(() => {
-  yup.setLocale(yupLocale);
-  const app = createApp();
-  app.setControllers();
-  app.getNewPosts();
-});
+export default () => {
+  const i18nInstance = i18n.createInstance();
+  return i18nInstance.init({
+    lng: 'ru',
+    debug: false,
+    resources,
+  }).then(() => {
+    yup.setLocale(yupLocale);
+    const app = createApp(i18nInstance);
+    app.setControllers();
+    app.getNewPosts();
+  });
+};
